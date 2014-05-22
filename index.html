@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>ING Chart</title>
+    <title>ING CSV PARSER</title>
     <script src="jquery-2.1.1.min.js"></script>
     <script src="Chart.min.js"></script>
     <script>
@@ -15,7 +15,7 @@
       function extractData() {
         var lines = [];
         var reader = new FileReader();
-        reader.readAsText($("#ing_csv").get(0).files[0]);
+        reader.readAsText($("#ing_csv").get(0).files[0], 'ISO-8859-1');
         reader.onload = function(e) {
           parseLines(e.target.result.split("\n"));
           buildDataSets(true);
@@ -81,7 +81,6 @@
           }
           charts.datasets.push({
             data: [],
-            fillColor: "rgba(0,0,0,0)",
             strokeColor : stringToColorCode(category),
             pointColor : stringToColorCode(category),
             pointStrokeColor : stringToColorCode(category),
@@ -98,7 +97,7 @@
           }
         }
         var ctx = document.getElementById("myChart").getContext("2d");
-        var myNewChart = new Chart(ctx).Line(charts);
+        var myNewChart = new Chart(ctx).Line(charts, {animationSteps: 12, datasetFill: false});
       }
     </script>
   </head>
