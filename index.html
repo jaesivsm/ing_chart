@@ -13,11 +13,16 @@
     <div id="chart_div"></div>
     <div id="menu">
       <ul id="legend" style="display: none;"></ul>
-      <span id="selectors" style="display: none;">S&eacute;lectionner :
-        <input type="button" value="Tous" onclick="selectAllCategories();buildDataSets(false);">
-        <input type="button" value="Rien" onclick="$('.category').removeAttr('checked');buildDataSets(false);">
-      </span>
-      <input id="ing_csv" type="file" name="ing_csv" onchange="extractData();">
+      <div class="selectors">S&eacute;lectionner :
+        <input type="button" value="Tous">
+        <input type="button" value="Rien">
+      </div>
+      <div class="selectors">Agr&eacute;gation :
+        <input id="agreg_day" type="radio" name="agreg" value="day"><label for="agreg_day">Jour</label>
+        <input id="agreg_month" type="radio" name="agreg" value="month" checked><label for="agreg_month">Mois</label>
+        <input id="agreg_year" type="radio" name="agreg" value="year"><label for="agreg_year">Ann&eacute;e</label>
+      </div>
+      <input id="ing_csv" type="file" name="ing_csv">
     </div>
   </body>
   <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -26,6 +31,20 @@
   <script>
     $(document).ready(function(){
       $('#menu').height($(document).height() - 60);
+      $('#ing_csv').on('change', extractData);
+      $('input[type=button][value=Tous]').on('click', function(){
+        for(var i=0; i<$('.category').length; i++) {
+          $('.category')[i].checked = true;
+        }
+        buildDataSets(false);
+      });
+      $('input[type=button][value=Rien]').on('click', function(){
+        $('.category').removeAttr('checked');
+        buildDataSets(false)
+      });
+      $('input[type=radio][name=agreg]').on('change', function(){
+        agregate($(this).val(), false);
+      });
     });
   </script>
 </html>

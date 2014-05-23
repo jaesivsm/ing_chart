@@ -1,10 +1,5 @@
 datas = [];
 grouped = {datas: {}, dates: []};
-function selectAllCategories() {
-  for(var i=0; i<$('.category').length; i++) {
-    $('.category')[i].checked = true;
-  }
-}
 var color_codes = {};
 function stringToColorCode(str) {
   // from http://stackoverflow.com/questions/17845584/converting-a-random-string-into-a-hex-colour
@@ -81,7 +76,7 @@ function buildDataSets(init) {
 
   if(init) {
       $('#legend').empty().show();
-      $('#selectors').show();
+      $('.selectors').show();
   }
   for(var i=0; i < grouped['dates'].length; i++){
     charts.labels[charts.labels.length] = grouped['dates'][i]['key'];

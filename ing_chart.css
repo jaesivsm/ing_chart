@@ -9,7 +9,8 @@
   height: 60px;
 }
 #header h6, #header div {
-  padding: 10px;
+  padding-top: 10px;
+  padding-left: 10px;
   display: block;
 }
 #header h6 {float: left; font-size: xx-large:}
@@ -20,7 +21,7 @@
   float: left;
   width: 280px;
 }
-#menu > ul, #menu > span {
+#menu > ul {
   padding-top: 25px;
   padding-left: 25px;
   padding-bottom: 25px;
@@ -31,3 +32,8 @@
 }
 input {border: 1px solid #333;}
 #ing_csv {width: 300px; border: 0;}
+.selectors {
+  display: none;
+  padding-top: 25px;
+  padding-left: 25px;
+}
