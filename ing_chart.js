@@ -28,7 +28,11 @@ function parseLines(lines) {
     line = lines[i].split(";");
     datas[i]['date'] = line[0];
     datas[i]['amount'] = parseFloat(line[3].replace(",", "."));
-    datas[i]['category'] = line[5];
+    if(line[5] == '') {
+      datas[i]['category'] = '_no_category_';
+    } else {
+      datas[i]['category'] = line[5];
+    }
   }
   return datas;
 }
@@ -67,11 +71,17 @@ function agregate(period, init) {
   buildDataSets(init);
 }
 function buildDataSets(init) {
+  $('#chart_div').show();
+  $('#chart_div').empty();
+  $('#menu').width(300);
+  var chart_width = $(document).width() - 300;
+  var chart_height = $(document).height() - 100;
+  $('#chart_div').append('<canvas id="myChart" width="'+chart_width+'px" height="'+chart_height+'px"></canvas>');
   var charts = {labels: [], datasets: []};
 
   if(init) {
-      $('#legend').empty();
-      $('input[type=button]').show();
+      $('#legend').empty().show();
+      $('#selectors').show();
   }
   for(var i=0; i < grouped['dates'].length; i++){
     charts.labels[charts.labels.length] = grouped['dates'][i]['key'];
@@ -87,7 +97,7 @@ function buildDataSets(init) {
       pointStrokeColor : stringToColorCode(category),
     });
     if(init) {
-      $('#legend').append("<li style='color:"+stringToColorCode(category)+"'><input type='checkbox' name='"+category+"' class='category' onchange='buildDataSets(false)' checked>"+category+"</li>");
+      $('#legend').append("<li style='color:"+stringToColorCode(category)+"'><input type='checkbox' id='"+category.replace(' ', '_')+"'  name='"+category+"' class='category' onchange='buildDataSets(false)' checked><label for='"+category.replace(' ', '_')+"'>"+category+"</label></li>");
     }
     for(var i=0; i < grouped['dates'].length; i++){
       var value = 0;

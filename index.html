@@ -2,21 +2,30 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>ING CSV PARSER</title>
+    <title>ING CHART</title>
+    <link rel="stylesheet" type="text/css" href="ing_chart.css">
   </head>
   <body>
-    <div style="float: left;">
-      <canvas id="myChart" width="1000" height="600"></canvas>
+    <div id="header">
+      <h6>ING CHART</h6>
+      <div>Grapher officieux et open source des extraits de compte au format CSV fournit par ING. Cette page fait une utilisation massive des biblioth&egrave;ques <a href="http://jquery.com/">jquery</a> et <a href="http://www.chartjs.org/">Chart.js</a>. Le code source disponible sur <a href="https://github.com/jaesivsm/ing_chart">github</a>. Si vous voulez contacter l'auteur à propos de ce site vous pouvez utiliser github ou lui envoyer un <a href="mailto:francois.schmidts@gmail.com">mail</a></div>
     </div>
-    <div>
-      <ul id="legend"></ul>
-      <input type="button" value="Aucune" onclick="$('.category').removeAttr('checked');buildDataSets(false);" style="display:none">
-      <input type="button" value="Toutes" onclick="selectAllCategories();buildDataSets(false);" style="display: none">
-      <br />
+    <div id="chart_div"></div>
+    <div id="menu">
+      <ul id="legend" style="display: none;"></ul>
+      <span id="selectors" style="display: none;">S&eacute;lectionner :
+        <input type="button" value="Tous" onclick="selectAllCategories();buildDataSets(false);">
+        <input type="button" value="Rien" onclick="$('.category').removeAttr('checked');buildDataSets(false);">
+      </span>
       <input id="ing_csv" type="file" name="ing_csv" onchange="extractData();">
     </div>
   </body>
   <script src="jquery-2.1.1.min.js"></script>
   <script src="Chart.min.js"></script>
   <script src="ing_chart.js"></script>
+  <script>
+    $(document).ready(function(){
+      $('#menu').height($(document).height() - 60);
+    });
+  </script>
 </html>
