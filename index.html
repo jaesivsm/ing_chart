@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>ING CHART</title>
     <link rel="stylesheet" type="text/css" href="ing_chart.css">
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css">
   </head>
   <body>
     <div id="header">
@@ -12,21 +13,31 @@
     </div>
     <div id="chart_div"></div>
     <div id="menu">
-      <ul id="legend" style="display: none;"></ul>
-      <div class="selectors">S&eacute;lectionner :
-        <input type="button" value="Tous">
-        <input type="button" value="Rien">
-      </div>
+      <div class="selectors">Du <input type="text" name="start" size="10" /> au <input type="text" name="stop" size="10" /></div>
       <div class="selectors">Agr&eacute;gation :
         <input id="agreg_day" type="radio" name="agreg" value="day"><label for="agreg_day">Jour</label>
         <input id="agreg_month" type="radio" name="agreg" value="month" checked><label for="agreg_month">Mois</label>
         <input id="agreg_year" type="radio" name="agreg" value="year"><label for="agreg_year">Ann&eacute;e</label>
       </div>
+      <div class="selectors">
+        <input id="only_spending" type="radio" name="only" value="spending">
+        <label for="only_spending">D&eacute;penses</label>
+        <input id="only_earning" type="radio" name="only" value="earning">
+        <label for="only_earning">Cr&eacute;dit</label>
+        <input id="only_both" type="radio" name="only" value="both" checked>
+        <label for="only_both">Cumul&eacute;</label>
+      </div>
       <input id="ing_csv" type="file" name="ing_csv">
+      <div class="selectors">
+        <ul id="legend" style="display: none;"></ul>
+        S&eacute;lectionner : <input type="button" value="Tous"> <input type="button" value="Rien">
+      </div>
     </div>
   </body>
-  <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="jquery-ui-1.10.4/js/jquery-1.10.2.js"></script>
   <script src="https://raw.githubusercontent.com/nnnick/Chart.js/master/Chart.min.js"></script>
+  <script src="jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
+  <script src="https://raw.githubusercontent.com/jquery/jquery-ui/master/ui/i18n/datepicker-fr.js"></script>
   <script src="ing_chart.js"></script>
   <script>
     $(document).ready(function(){
@@ -42,8 +53,18 @@
         $('.category').removeAttr('checked');
         buildDataSets(false)
       });
-      $('input[type=radio][name=agreg]').on('change', function(){
-        agregate($(this).val(), false);
+      $('input[type=radio]').on('change', function(){agregate(false);});
+      $('input[name=start]').datepicker(
+        {
+        changeMonth: true,
+        changeYear: true,
+        onClose: function(){buildDataSets(false);},
+      });
+      $('input[name=stop]').datepicker(
+      {
+        changeMonth: true,
+        changeYear: true,
+        onClose: function(){buildDataSets(false);},
       });
     });
   </script>
