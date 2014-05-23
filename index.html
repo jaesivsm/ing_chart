@@ -3,9 +3,6 @@
   <head>
     <meta charset="UTF-8">
     <title>ING CSV PARSER</title>
-    <script src="jquery-2.1.1.min.js"></script>
-    <script src="Chart.min.js"></script>
-    <script src="ing_chart.js"></script>
   </head>
   <body>
     <div style="float: left;">
@@ -13,7 +10,13 @@
     </div>
     <div>
       <ul id="legend"></ul>
+      <input type="button" value="Aucune" onclick="$('.category').removeAttr('checked');buildDataSets(false);" style="display:none">
+      <input type="button" value="Toutes" onclick="selectAllCategories();buildDataSets(false);" style="display: none">
+      <br />
       <input id="ing_csv" type="file" name="ing_csv" onchange="extractData();">
     </div>
   </body>
+  <script src="jquery-2.1.1.min.js"></script>
+  <script src="Chart.min.js"></script>
+  <script src="ing_chart.js"></script>
 </html>

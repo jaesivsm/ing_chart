@@ -1,5 +1,10 @@
 datas = [];
 grouped = {datas: {}, dates: []};
+function selectAllCategories() {
+  for(var i=0; i<$('.category').length; i++) {
+    $('.category')[i].checked = true;
+  }
+}
 var color_codes = {};
 function stringToColorCode(str) {
   // from http://stackoverflow.com/questions/17845584/converting-a-random-string-into-a-hex-colour
@@ -11,8 +16,7 @@ function extractData() {
   reader.readAsText($("#ing_csv").get(0).files[0], 'ISO-8859-1');
   reader.onload = function(e) {
     parseLines(e.target.result.split("\n"));
-    agregate('month');
-    buildDataSets(true);
+    agregate('month', true);
   }
 }
 function parseLines(lines) {
@@ -28,7 +32,7 @@ function parseLines(lines) {
   }
   return datas;
 }
-function agregate(period) {
+function agregate(period, init) {
   grouped = {datas: {}, dates: []};
   var line_date, line_date_obj;
   var passed_date = [];
@@ -60,16 +64,20 @@ function agregate(period) {
     }
   }
   grouped['dates'].sort(function(a, b){return a.obj - b.obj;});
-  return grouped;
+  buildDataSets(init);
 }
-function buildDataSets(first) {
+function buildDataSets(init) {
   var charts = {labels: [], datasets: []};
 
+  if(init) {
+      $('#legend').empty();
+      $('input[type=button]').show();
+  }
   for(var i=0; i < grouped['dates'].length; i++){
     charts.labels[charts.labels.length] = grouped['dates'][i]['key'];
   }
   for(var category in grouped['datas']){
-    if(!first && !($('input[type=checkbox][name="'+category+'"]')[0].checked)) {
+    if(!init && !($('input[type=checkbox][name="'+category+'"]')[0].checked)) {
       continue;
     }
     charts.datasets.push({
@@ -78,8 +86,8 @@ function buildDataSets(first) {
       pointColor : stringToColorCode(category),
       pointStrokeColor : stringToColorCode(category),
     });
-    if(first) {
-      $('#legend').append("<li style='color:"+stringToColorCode(category)+"'><input type='checkbox' name='"+category+"' onchange='buildDataSets()' checked>"+category+"</li>");
+    if(init) {
+      $('#legend').append("<li style='color:"+stringToColorCode(category)+"'><input type='checkbox' name='"+category+"' class='category' onchange='buildDataSets(false)' checked>"+category+"</li>");
     }
     for(var i=0; i < grouped['dates'].length; i++){
       var value = 0;
