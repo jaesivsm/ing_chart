@@ -14,10 +14,11 @@
     <div id="chart_div"></div>
     <div id="menu">
       <div class="selectors">Du <input type="text" name="start" size="10" /> au <input type="text" name="stop" size="10" /></div>
-      <div class="selectors">Agr&eacute;gation :
-        <input id="agreg_day" type="radio" name="agreg" value="day"><label for="agreg_day">Jour</label>
-        <input id="agreg_month" type="radio" name="agreg" value="month" checked><label for="agreg_month">Mois</label>
-        <input id="agreg_year" type="radio" name="agreg" value="year"><label for="agreg_year">Ann&eacute;e</label>
+      <div class="selectors">
+        <input id="chart_pie" type="radio" name="chart" value="pie">
+        <label for="chart_pie">Camembert</label>
+        <input id="chart_line" type="radio" name="chart" value="line" checked>
+        <label for="chart_line">Lignes</label>
       </div>
       <div class="selectors">
         <input id="only_spending" type="radio" name="only" value="spending">
@@ -27,9 +28,14 @@
         <input id="only_both" type="radio" name="only" value="both" checked>
         <label for="only_both">Cumul&eacute;</label>
       </div>
+      <div id="selectors_agreg" class="selectors">Agr&eacute;gation :
+        <input id="agreg_day" type="radio" name="agreg" value="day"><label for="agreg_day">Jour</label>
+        <input id="agreg_month" type="radio" name="agreg" value="month" checked><label for="agreg_month">Mois</label>
+        <input id="agreg_year" type="radio" name="agreg" value="year"><label for="agreg_year">Ann&eacute;e</label>
+      </div>
       <input id="ing_csv" type="file" name="ing_csv">
-      <div class="selectors">
-        <ul id="legend" style="display: none;"></ul>
+      <div>
+        <ul id="legend"></ul>
         S&eacute;lectionner : <input type="button" value="Tous"> <input type="button" value="Rien">
       </div>
     </div>
@@ -53,7 +59,20 @@
         $('.category').removeAttr('checked');
         buildDataSets(false)
       });
-      $('input[type=radio]').on('change', function(){agregate(false);});
+      $('input[type=radio]').on('change', function(){
+        if($(this).attr('name') == 'chart' && $(this).attr('value') == 'pie') {
+          if($('#only_both').attr('checked') == 'checked'){
+            $('#only_both').attr('checked', '');
+            $('#only_spending').attr('checked', 'checked');
+          }
+          $('#only_both').attr('disabled', true);
+          $('#selectors_agreg').hide();
+        } else if($(this).attr('name') == 'chart') {
+          $('#only_both').attr('disabled', false);
+          $('#selectors_agreg').show();
+        }
+        agregate(false);
+      });
       $('input[name=start]').datepicker(
         {
         changeMonth: true,

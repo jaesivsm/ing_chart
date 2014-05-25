@@ -90,7 +90,7 @@ function buildDataSets(init, start, stop) {
 
   if(init) {
       $('#legend').empty().show();
-      $('.selectors').show();
+      $('#menu>div').show();
   }
   function shouldPass(date, start, stop, agreg) { // we can't be more precise than the agregagtion
     if(agreg=='day'){
@@ -138,5 +138,18 @@ function buildDataSets(init, start, stop) {
     }
   }
   var ctx = document.getElementById("myChart").getContext("2d");
-  var myNewChart = new Chart(ctx).Line(charts, {scaleOverlay: true, animationSteps: 12, datasetFill: false});
+  var options = {scaleOverlay: true, animationSteps: 12, datasetFill: false};
+  if($('input[name=chart]:checked').val() == 'pie') { // FIXME should be done at agregagtion level
+    var pie_chart = [];
+    for(i=0;i<charts.datasets.length;i++){
+        var total = 0;
+        $.each(charts.datasets[i].data,function(){total += this;});
+        if(total < 0){total = total*-1;}
+        else if (total == 0) {continue;}
+        pie_chart.push({value: parseInt(total), color: charts.datasets[i].pointColor,});
+    }
+    new Chart(ctx).Pie(pie_chart, options);
+  } else {
+    new Chart(ctx).Line(charts, options);
+  }
 }

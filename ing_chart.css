@@ -21,10 +21,10 @@
   float: left;
   width: 280px;
 }
-#menu > ul {
-  padding-top: 25px;
-  padding-left: 25px;
-  padding-bottom: 25px;
+#menu > div {
+  padding: 25px;
+  padding-bottom: 0px;
+  display: none;
 }
 #menu > input {
   padding-top: 25px;
@@ -33,7 +33,5 @@
 input {border: 1px solid #333;}
 #ing_csv {width: 300px; border: 0;}
 .selectors {
-  display: none;
-  padding-top: 25px;
-  padding-left: 25px;
+  text-align: center;
 }
