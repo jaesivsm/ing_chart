@@ -11,20 +11,26 @@ $(document).ready(function(){
     $('.category').removeAttr('checked');
     buildDataSets(false)
   });
-  $('input[type=radio]').on('change', function(){
-    if($(this).attr('name') == 'chart' && $(this).attr('value') == 'pie') {
-      if($('input[name=only]:checked').val() == 'both'){
-        $('#only_both').prop('checked', '');
-        $('#only_spending').prop('checked', 'checked');
-      }
+  $('input[type=radio][name=chart]').on('change', function(){
+    var pie_chart = $(this).attr('value') == 'pie';
+    if(pie_chart && $('input[name=only]:checked').val() == 'both'){
+      $('#only_both').prop('checked', '');
+      $('#only_spending').prop('checked', 'checked');
+      agregate(false);
+    } else {
+      buildDataSets(false);
+    }
+    if(pie_chart) {
       $('#only_both').attr('disabled', true);
       $('input[name=agreg]').attr('disabled', true);
       $('#selectors_agreg').css('color', '#777');
-    } else if($(this).attr('name') == 'chart') {
-        $('#only_both').attr('disabled', false);
-        $('input[name=agreg]').attr('disabled', false);
-        $('#selectors_agreg').css('color', '#333');
+    } else {
+      $('#only_both').attr('disabled', false);
+      $('input[name=agreg]').attr('disabled', false);
+      $('#selectors_agreg').css('color', '#333');
     }
+  });
+  $('input[type=radio]').filter('[name=only],[name=agreg]').on('change', function(){
     agregate(false);
   });
   $('#legend').on('click', 'input',function(){buildDataSets(false);});

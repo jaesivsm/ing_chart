@@ -79,11 +79,33 @@ function agregate(init) {
   grouped.dates.sort(function(a, b){return a.obj - b.obj;});
   buildDataSets(init);
 }
+function isInTimeRange(date, start, stop, agreg) { // we can't be more precise than the agregagtion
+  if(agreg=='day'){
+    return start <= date && date <= stop;
+  } else {
+    if(start.getFullYear() <= date.getFullYear() && date.getFullYear() <= stop.getFullYear()) {
+      if(agreg == 'year') {
+        return true;
+      }
+      if(start.getFullYear() == date.getFullYear() && date.getFullYear() == stop.getFullYear()) {
+        return start.getMonth() <= date.getMonth() && date.getMonth() <= stop.getMonth();
+      } else if(start.getFullYear() == date.getFullYear()){
+        return start.getMonth() <= date.getMonth();
+      } else if(date.getFullYear() == stop.getFullYear()) {
+        return date.getMonth() <= stop.getMonth();
+      } else {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 function buildDataSets(init, start, stop) {
-  var charts = {labels: [], datasets: []};
+  var charts;
   var chart_width = $(document).width() - 300;
   var chart_height = $(document).height() - 100;
   var agreg = $('input[type=radio][name=agreg]:checked').val();
+  var pie_chart = $('input[name=chart]:checked').val() == 'pie';
   if(!start) {var start = toDate($('input[name=start]').val());}
   if(!stop) {var stop = toDate($('input[name=stop]').val());}
   $('#chart_div').show();
@@ -95,65 +117,49 @@ function buildDataSets(init, start, stop) {
       $('#legend').empty().show();
       $('#menu>div').show();
   }
-  function shouldPass(date, start, stop, agreg) { // we can't be more precise than the agregagtion
-    if(agreg=='day'){
-      return date > stop || date < start;
-    } else {
-      if(date.getFullYear() <= stop.getFullYear() && date.getFullYear() >= start.getFullYear()) {
-        if(agreg == 'year') {
-          return false;
-        }
-        if(start.getFullYear() == date.getFullYear() && date.getFullYear() == stop.getFullYear()) {
-          return date.getMonth() < start.getMonth() || date.getMonth() > stop.getMonth();
-        } else if(start.getFullYear() == date.getFullYear()){
-          return date.getMonth() < start.getMonth();
-        } else if(date.getFullYear() == stop.getFullYear()) {
-          return date.getMonth() > stop.getMonth();
-        } else {
-          return false;
-        }
-      }
+  if(pie_chart) {
+    charts = [];
+  } else {
+    charts = {labels: [], datasets: []};
+    for(var i=0; i < grouped.dates.length; i++){
+      if(isInTimeRange(grouped.dates[i].obj, start, stop, agreg)) {charts.labels.push(grouped.dates[i].key);}
     }
-    return true;
-  }
-  for(var i=0; i < grouped.dates.length; i++){
-    if(shouldPass(grouped.dates[i].obj, start, stop, agreg)) {continue;}
-    charts.labels.push(grouped.dates[i].key);
   }
   for(var category in grouped.datas){
     if(!init && !($('input[type=checkbox][name="'+category+'"]')[0].checked)) {continue;}
-    charts.datasets.push({
-      data: [],
-      strokeColor : stringToColorCode(category),
-      pointColor : stringToColorCode(category),
-      pointStrokeColor : stringToColorCode(category),
-    });
+    if(pie_chart) {
+      charts.push({value: 0, color: stringToColorCode(category)});
+    } else {
+      charts.datasets.push({
+        data: [],
+        strokeColor : stringToColorCode(category),
+        pointColor : stringToColorCode(category),
+        pointStrokeColor : stringToColorCode(category),
+      });
+    }
     if(init) {
       $('#legend').append($('<li />').css('color', stringToColorCode(category)).append(
         $("<input type='checkbox' class='category' checked />").attr('id', category.replace(' ', '_')).attr('name', category)).append(
         $("<label />").attr('for', category.replace(' ', '_')).text(category)));
     }
     for(var i=0; i < grouped.dates.length; i++){
-      if(shouldPass(grouped.dates[i].obj, start, stop, agreg)) {continue;}
-      var value = 0;
-      if(grouped.dates[i].key in grouped.datas[category]){
-        value = grouped.datas[category][grouped.dates[i].key] * -1;
+      if(isInTimeRange(grouped.dates[i].obj, start, stop, agreg)) {
+        if(grouped.dates[i].key in grouped.datas[category]){
+          if(pie_chart) {
+            charts[charts.length-1].value += grouped.datas[category][grouped.dates[i].key];
+          } else {
+            charts.datasets[charts.datasets.length-1].data.push(grouped.datas[category][grouped.dates[i].key] * -1);
+          }
+        } else if(!pie_chart) {
+          charts.datasets[charts.datasets.length-1].data.push(0);
+        }
       }
-      charts.datasets[charts.datasets.length-1].data.push(value);
     }
   }
   var ctx = document.getElementById("myChart").getContext("2d");
   var options = {scaleOverlay: true, animationSteps: 12, datasetFill: false};
-  if($('input[name=chart]:checked').val() == 'pie') { // FIXME should be done at agregagtion level
-    var pie_chart = [];
-    for(i=0;i<charts.datasets.length;i++){
-        var total = 0;
-        $.each(charts.datasets[i].data,function(){total += this;});
-        if(total < 0){total = total*-1;}
-        else if (total == 0) {continue;}
-        pie_chart.push({value: parseInt(total), color: charts.datasets[i].pointColor,});
-    }
-    new Chart(ctx).Pie(pie_chart, options);
+  if(pie_chart) {
+    new Chart(ctx).Pie(charts, options);
   } else {
     new Chart(ctx).Line(charts, options);
   }
