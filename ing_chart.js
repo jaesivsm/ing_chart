@@ -126,7 +126,9 @@ function buildDataSets(init, start, stop) {
       pointStrokeColor : stringToColorCode(category),
     });
     if(init) {
-      $('#legend').append("<li style='color:"+stringToColorCode(category)+"'><input type='checkbox' id='"+category.replace(' ', '_')+"'  name='"+category+"' class='category' onchange='buildDataSets(false)' checked><label for='"+category.replace(' ', '_')+"'>"+category+"</label></li>");
+      $('#legend').append($('<li />').css('color', stringToColorCode(category)).append(
+        $("<input type='checkbox' class='category' checked />").attr('id', category.replace(' ', '_')).attr('name', category)).append(
+        $("<label />").attr('for', category.replace(' ', '_')).text(category)));
     }
     for(var i=0; i < grouped.dates.length; i++){
       if(shouldPass(grouped.dates[i].obj, start, stop, agreg)) {continue;}

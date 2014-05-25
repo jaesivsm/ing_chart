@@ -22,11 +22,11 @@
       </div>
       <div class="selectors">
         <input id="only_spending" type="radio" name="only" value="spending">
-        <label for="only_spending">D&eacute;penses</label>
+        <label for="only_spending">D&eacute;bits</label>
         <input id="only_earning" type="radio" name="only" value="earning">
-        <label for="only_earning">Cr&eacute;dit</label>
+        <label for="only_earning">Cr&eacute;dits</label>
         <input id="only_both" type="radio" name="only" value="both" checked>
-        <label for="only_both">Cumul&eacute;</label>
+        <label for="only_both">Cumul&eacute;es</label>
       </div>
       <div id="selectors_agreg" class="selectors">Agr&eacute;gation :
         <input id="agreg_day" type="radio" name="agreg" value="day"><label for="agreg_day">Jour</label>
@@ -45,46 +45,6 @@
   <script src="jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
   <script src="https://raw.githubusercontent.com/jquery/jquery-ui/master/ui/i18n/datepicker-fr.js"></script>
   <script src="ing_chart.js"></script>
-  <script>
-    $(document).ready(function(){
-      $('#menu').height($(document).height() - 60);
-      $('#ing_csv').on('change', extractData);
-      $('input[type=button][value=Tous]').on('click', function(){
-        for(var i=0; i<$('.category').length; i++) {
-          $('.category')[i].checked = true;
-        }
-        buildDataSets(false);
-      });
-      $('input[type=button][value=Rien]').on('click', function(){
-        $('.category').removeAttr('checked');
-        buildDataSets(false)
-      });
-      $('input[type=radio]').on('change', function(){
-        if($(this).attr('name') == 'chart' && $(this).attr('value') == 'pie') {
-          if($('#only_both').attr('checked') == 'checked'){
-            $('#only_both').attr('checked', '');
-            $('#only_spending').attr('checked', 'checked');
-          }
-          $('#only_both').attr('disabled', true);
-          $('#selectors_agreg').hide();
-        } else if($(this).attr('name') == 'chart') {
-          $('#only_both').attr('disabled', false);
-          $('#selectors_agreg').show();
-        }
-        agregate(false);
-      });
-      $('input[name=start]').datepicker(
-        {
-        changeMonth: true,
-        changeYear: true,
-        onClose: function(){buildDataSets(false);},
-      });
-      $('input[name=stop]').datepicker(
-      {
-        changeMonth: true,
-        changeYear: true,
-        onClose: function(){buildDataSets(false);},
-      });
-    });
+  <script src="ing_menu.js"></script>
   </script>
 </html>
