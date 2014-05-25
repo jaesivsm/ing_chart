@@ -2,8 +2,11 @@ datas = [];
 grouped = {datas: {}, dates: []};
 var color_codes = {};
 function stringToColorCode(str) {
-  // from http://stackoverflow.com/questions/17845584/converting-a-random-string-into-a-hex-colour
-  return (str in color_codes) ? color_codes[str] : (color_codes[str] = '#'+ ('000000' + (Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
+  // from http://stackoverflow.com/questions/3426404/create-a-hexadecimal-colour-based-on-a-string-with-javascript
+  var hash, colour;
+  for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+  for (var i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
+  return colour;
 }
 function toDate(str) {
   var splited = str.split('/');
