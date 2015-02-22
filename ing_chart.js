@@ -18,7 +18,7 @@ function extractData() {
   var lines = [];
   var reader = new FileReader();
   reader.readAsText($("#ing_csv").get(0).files[0], 'ISO-8859-1');
-  reader.onload = function(e) {
+  reader.onload = function(e) {
     parseLines(e.target.result.split("\n"));
     agregate(true);
   }
@@ -28,7 +28,7 @@ function parseLines(lines) {
   var lines;
   var earliest = new Date();
   var latest = new Date();
-  for(var i=0; i < lines.length; i++) {
+  for(var i=0; i < lines.length; i++) {
     if(lines[i] == "") {continue;}
     datas[i] = {};
     line = lines[i].split(";");
@@ -46,6 +46,29 @@ function parseLines(lines) {
   $('input[name=stop]').val(latest.toLocaleDateString());
   return datas;
 }
+function getYearWeekNo(date) {
+  return Math.ceil((((date - new Date(date.getFullYear(), 0, 1)) / 86400000) + 1) / 7)
+}
+function agregDate(date, agreg) {
+  line_date = date.getFullYear() * 10000;
+  if(agreg == 'day') {
+    line_date += date.getMonth() * 100 + date.getDate();
+  } else if(agreg == 'week') {
+    line_date += getYearWeekNo(date);
+  } else if(agreg == 'month') {
+    line_date += date.getMonth();
+  } else if(agreg == 'bi') {
+    line_date += parseInt(date.getMonth() / 2) + 1;
+  } else if(agreg == 'tri') {
+    line_date += parseInt(date.getMonth() / 3) + 1;
+  } else if(agreg == 'six') {
+    line_date += parseInt(date.getMonth() / 6) + 1;
+  }
+  return line_date;
+}
+function isInTimeRange(date, start, stop, agreg) { // we can't be more precise than the agregagtion
+  return agregDate(start, agreg) <= date && date <= agregDate(stop, agreg);
+}
 function agregate(init) {
   grouped = {datas: {}, dates: []};
   var line_date, line_date_obj;
@@ -57,13 +80,7 @@ function agregate(init) {
       grouped.datas[datas[i].category] = {};
     }
 
-    if(period == 'month') {
-      line_date = datas[i].date.str.slice(3);
-    } else if(period == 'year') {
-      line_date = datas[i].date.str.slice(6);
-    } else {
-      line_date = datas[i].date.str;
-    }
+    line_date = agregDate(datas[i].date.obj, period);
 
     if(!(line_date in grouped.datas[datas[i].category])) {
       grouped.datas[datas[i].category][line_date] = 0.0;
@@ -71,43 +88,38 @@ function agregate(init) {
     if(only=='both' || only=='spending' && datas[i].amount < 0 || only=='earning' && datas[i].amount > 0) {
       grouped.datas[datas[i].category][line_date] += datas[i].amount;
     }
-    if (passed_date.indexOf(line_date) == -1) {
+    if (passed_date.indexOf(line_date) == -1) {
+      if(period == 'week') {
+        line_key = "w" + getYearWeekNo(datas[i].date.obj) + datas[i].date.str.slice(5);
+      } else if(period == 'month') {
+        line_key = datas[i].date.str.slice(3);
+      } else if(period == 'six') {
+        line_key = "sem" + (parseInt(datas[i].date.obj.getMonth() / 6) + 1) + datas[i].date.str.slice(5);
+      } else if(period == 'tri') {
+        line_key = "trim" + (parseInt(datas[i].date.obj.getMonth() / 3) + 1) + datas[i].date.str.slice(5);
+      } else if(period == 'bi') {
+        line_key = "bim" + (parseInt(datas[i].date.obj.getMonth() / 2) + 1) + datas[i].date.str.slice(5);
+      } else if(period == 'year') {
+        line_key = datas[i].date.str.slice(6);
+      } else {
+        line_key = datas[i].date.str;
+      }
+
       passed_date.push(line_date);
-      grouped.dates.push({key: line_date, obj: datas[i].date.obj,});
+      grouped.dates.push({key: line_key, num: line_date});
     }
   }
-  grouped.dates.sort(function(a, b){return a.obj - b.obj;});
+  grouped.dates.sort(function(a, b){return a.num - b.num;});
   buildDataSets(init);
 }
-function isInTimeRange(date, start, stop, agreg) { // we can't be more precise than the agregagtion
-  if(agreg=='day'){
-    return start <= date && date <= stop;
-  } else {
-    if(start.getFullYear() <= date.getFullYear() && date.getFullYear() <= stop.getFullYear()) {
-      if(agreg == 'year') {
-        return true;
-      }
-      if(start.getFullYear() == date.getFullYear() && date.getFullYear() == stop.getFullYear()) {
-        return start.getMonth() <= date.getMonth() && date.getMonth() <= stop.getMonth();
-      } else if(start.getFullYear() == date.getFullYear()){
-        return start.getMonth() <= date.getMonth();
-      } else if(date.getFullYear() == stop.getFullYear()) {
-        return date.getMonth() <= stop.getMonth();
-      } else {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-function buildDataSets(init, start, stop) {
+function buildDataSets(init, start, stop) {
   var charts;
   var chart_width = $(document).width() - 300;
   var chart_height = $(document).height() - 100;
   var agreg = $('input[type=radio][name=agreg]:checked').val();
   var pie_chart = $('input[name=chart]:checked').val() == 'pie';
   if(!start) {var start = toDate($('input[name=start]').val());}
-  if(!stop) {var stop = toDate($('input[name=stop]').val());}
+  if(!stop) {var stop = toDate($('input[name=stop]').val());}
   $('#chart_div').show();
   $('#chart_div').empty();
   $('#menu').width(300);
@@ -122,12 +134,12 @@ function buildDataSets(init, start, stop) {
   } else {
     charts = {labels: [], datasets: []};
     for(var i=0; i < grouped.dates.length; i++){
-      if(isInTimeRange(grouped.dates[i].obj, start, stop, agreg)) {charts.labels.push(grouped.dates[i].key);}
+      if(isInTimeRange(grouped.dates[i].num, start, stop, agreg)) {charts.labels.push(grouped.dates[i].key);}
     }
   }
   for(var category in grouped.datas){
-    if(!init && !($('input[type=checkbox][name="'+category+'"]')[0].checked)) {continue;}
-    if(pie_chart) {
+    if(!init && !($('input[type=checkbox][name="'+category+'"]')[0].checked)) {continue;}
+    if(pie_chart) {
       charts.push({value: 0, color: stringToColorCode(category)});
     } else {
       charts.datasets.push({
@@ -143,12 +155,12 @@ function buildDataSets(init, start, stop) {
         $("<label />").attr('for', category.replace(' ', '_')).text(category)));
     }
     for(var i=0; i < grouped.dates.length; i++){
-      if(isInTimeRange(grouped.dates[i].obj, start, stop, agreg)) {
-        if(grouped.dates[i].key in grouped.datas[category]){
+      if(isInTimeRange(grouped.dates[i].num, start, stop, agreg)) {
+        if(grouped.dates[i].num in grouped.datas[category]){
           if(pie_chart) {
-            charts[charts.length-1].value += grouped.datas[category][grouped.dates[i].key];
+            charts[charts.length-1].value += grouped.datas[category][grouped.dates[i].num];
           } else {
-            charts.datasets[charts.datasets.length-1].data.push(grouped.datas[category][grouped.dates[i].key] * -1);
+            charts.datasets[charts.datasets.length-1].data.push(grouped.datas[category][grouped.dates[i].num] * -1);
           }
         } else if(!pie_chart) {
           charts.datasets[charts.datasets.length-1].data.push(0);
