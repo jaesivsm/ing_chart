@@ -1,5 +1,5 @@
 #!/bin/bash
-JQUERY_UI="jquery-ui-1.10.4"
+JQUERY_UI="jquery-ui-1.11.4"
 LIB_CHART="lib/Chart.js"
 JQ_DATE_LOC="lib/jquery/datepicker-fr.js"
 echo "Downloading JQuery UI"
@@ -13,10 +13,9 @@ echo "Uncompressing JQuery UI"
 unzip -q $JQUERY_UI.zip
 
 echo "Cleaning JQuery UI files"
-mv $JQUERY_UI/css lib/jquery/
-mv $JQUERY_UI/js/$JQUERY_UI.min.js lib/jquery/jquery-ui.js
-rm $JQUERY_UI/js/$JQUERY_UI.js
-mv $JQUERY_UI/js/*.js lib/jquery/jquery.js
+mv $JQUERY_UI/jquery-ui.min.js lib/jquery/jquery-ui.js
+mv $JQUERY_UI/jquery-ui.min.css lib/jquery/
+mv $JQUERY_UI/*.js lib/jquery/jquery.js
 rm $JQUERY_UI.zip -rf $JQUERY_UI
 
 echo "Minifying JS files"
